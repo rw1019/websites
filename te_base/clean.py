@@ -107,25 +107,35 @@ block_rows = sorted(
 block_rows = [r for r in block_rows if isinstance(ws.cell(r, 1).value, str)]
 block_rows.sort()
 
-products, flows = [], []
+# 区块层级：带缩略图(第 O 列 DISPIMG)的块 = 真产品；紧跟其后无图的块 = 该产品的颜色/规格
 bounds = block_rows + [ws.max_row + 1]
-seen = {}
+blocks = []
 for i, hr in enumerate(block_rows):
-    end = bounds[i + 1]
-    raw_name = str(ws.cell(hr, 1).value).strip()
-    seen[raw_name] = seen.get(raw_name, 0) + 1
-    name = raw_name if seen[raw_name] == 1 else f"{raw_name}#{seen[raw_name]}"
-    imgfile = resolve_dispimg(ws.cell(hr, 15).value)
-    skc = ws.cell(hr, 16).value
-    note = ws.cell(hr, 17).value
-    if imgfile:
-        shutil.copy(os.path.join(XDIR, "xl/media", imgfile), os.path.join(IMG, f"{name}_{imgfile}"))
-    products.append({
-        "产品名": name,
-        "缩略图": f"{name}_{imgfile}" if imgfile else None,
-        "SKC": sanitize_text(skc),
-        "备注": sanitize_text(note),
+    blocks.append({
+        "hr": hr,
+        "end": bounds[i + 1],
+        "raw": str(ws.cell(hr, 1).value).strip(),
+        "img": resolve_dispimg(ws.cell(hr, 15).value),
     })
+parent = None
+for b in blocks:
+    if b["img"]:  # 有缩略图 = 真产品
+        parent = b["raw"]
+        b["真产品"], b["款式"] = b["raw"], None
+    else:          # 无缩略图 = 上级产品的款式
+        b["真产品"], b["款式"] = (parent or b["raw"]), b["raw"]
+
+products, flows = [], []
+for b in blocks:
+    hr, end = b["hr"], b["end"]
+    if b["img"]:
+        shutil.copy(os.path.join(XDIR, "xl/media", b["img"]), os.path.join(IMG, f"{b['raw']}_{b['img']}"))
+        products.append({
+            "产品名": b["真产品"],
+            "缩略图": f"{b['raw']}_{b['img']}",
+            "SKC": sanitize_text(ws.cell(hr, 16).value),
+            "备注": sanitize_text(ws.cell(hr, 17).value),
+        })
     for r in range(hr + 1, end):
         if ws.cell(r, 4).value is None and ws.cell(r, 9).value is None:
             continue
@@ -142,7 +152,8 @@ for i, hr in enumerate(block_rows):
                 else:
                     sdate = None
         flows.append({
-            "产品名": name,
+            "产品名": b["真产品"],
+            "款式": b["款式"],
             "采购日期": pdate,
             "发货日期": sdate,
             "单价": to_num(ws.cell(r, 4).value),
