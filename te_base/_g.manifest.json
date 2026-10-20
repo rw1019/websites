@@ -1,0 +1,58 @@
+{
+  "manifest_version": "v1",
+  "format": "ndjson",
+  "base_token": "E4f8bL9RfavU7kseBeYcmfExnsi",
+  "table_id": "tblWzw9LYneCod5F",
+  "rev": 34,
+  "timezone": "Asia/Shanghai",
+  "query_context": {
+    "field_scope": "selected_fields",
+    "record_scope": "all_records"
+  },
+  "requested_limit": 2000,
+  "records_count": 1311,
+  "page_count": 3,
+  "has_more": false,
+  "record_file": "/workspace/te_base/_g.ndjson",
+  "record_file_size_bytes": 174354,
+  "manifest_file": "/workspace/te_base/_g.manifest.json",
+  "columns": {
+    "record_id": {
+      "physical_type": "string",
+      "stats": {
+        "max_length": 16
+      },
+      "example": "reczz28PZAE0PAeS"
+    },
+    "主分类": {
+      "field_id": "fldg1YnRwO",
+      "field_type": "text",
+      "physical_type": "string|null",
+      "stats": {
+        "null_count": 0,
+        "max_length": 17
+      },
+      "example": "新关节"
+    },
+    "产品完整名称": {
+      "field_id": "fldCar8NnH",
+      "field_type": "text",
+      "physical_type": "string|null",
+      "stats": {
+        "null_count": 0,
+        "max_length": 21
+      },
+      "example": "新关节"
+    },
+    "子规格": {
+      "field_id": "fldyVKxcs9",
+      "field_type": "text",
+      "physical_type": "string|null",
+      "stats": {
+        "null_count": 464,
+        "max_length": 13
+      },
+      "example": "18mm"
+    }
+  }
+}
